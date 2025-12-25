@@ -1,0 +1,55 @@
+services:
+#  ngrok:
+#    image: ngrok/ngrok:latest
+#    entrypoint: /code/scripts/ngrok/entrypoint.sh
+#    ports:
+#      - "4040:4040"
+#    volumes:
+#      - .:/code
+#      - ./ngrok.yml:/etc/ngrok.yml:ro
+#    environment:
+#      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-}
+#    networks:
+#      - сd_network
+#    healthcheck:
+#      test: ["CMD-SHELL", "timeout 1 sh -c '</dev/tcp/localhost/4040' || exit 1"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
+#      start_period: 30s
+
+  bot:
+    build:
+      dockerfile: docker/Dockerfile
+      context: .
+#    expose:
+#      - "8000"
+    ports:
+      - "8000:8000"
+    command: scripts/web/startup.sh -m -l
+    restart: on-failure
+    env_file:
+      - ./conf/.env
+    volumes:
+      - .:/code
+    networks:
+      - сd_network
+
+#  nginx:
+#    image: nginx:latest
+#    ports:
+#      - "443:443"
+#      - "80:80"
+#    volumes:
+#      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+#      - /etc/letsencrypt/live/asdfdfasf.ru/fullchain.pem:/etc/nginx/certificates/fullchain.pem:ro
+#      - /etc/letsencrypt/live/asdfdfasf.ru/privkey.pem:/etc/nginx/certificates/privkey.pem:ro
+#    depends_on:
+#      - bot
+#    restart: always
+#    networks:
+#      - сd_network
+
+networks:
+  сd_network:
+    external: True
