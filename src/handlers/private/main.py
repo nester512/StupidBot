@@ -14,21 +14,18 @@ from src.handlers.private.texts import (
     OPT_MANAGERS_HEADER,
     OPT_QUANTITY_QUESTION,
     OPT_SMALL_QUANTITY,
-    RETAIL_MARKETPLACES_HEADER,
     START_GREETING,
 )
 
-# Моки данных (будут заменены позже)
-MOCK_MANAGERS = [
-    {"name": "Иван Иванов", "phone": "+7 (999) 123-45-67", "telegram": "@ivan_manager"},
-    {"name": "Мария Петрова", "phone": "+7 (999) 234-56-78", "telegram": "@maria_manager"},
+# Контакты менеджеров для опта
+OPT_MANAGERS = [
+    {"telegram": "@Duxa_VLIQ"},
+    {"telegram": "@ArtemVLiQ"},
+    {"telegram": "@elVLIQ"},
 ]
 
-MOCK_MARKETPLACES = [
-    {"name": "Wildberries", "url": "https://www.wildberries.ru/catalog/0/search.aspx?search=товар"},
-    {"name": "Ozon", "url": "https://www.ozon.ru/search/?text=товар"},
-    {"name": "Яндекс.Маркет", "url": "https://market.yandex.ru/search?text=товар"},
-]
+# Текст для розницы
+RETAIL_TEXT = """Привет! Уже совсем скоро наши ароматизаторы вернутся на OZON и Яндекс.Маркет. Следите за обновлениями в нашем Telegram-канале. А пока ищите VLIQ в шопах своего города."""
 
 
 def get_start_keyboard() -> InlineKeyboardMarkup:
@@ -143,11 +140,6 @@ async def handle_retail_choice(callback: CallbackQuery, state: FSMContext):
     """Обработчик выбора розницы."""
     await state.clear()
 
-    # Формируем список маркетплейсов
-    marketplaces_text = RETAIL_MARKETPLACES_HEADER
-    for i, marketplace in enumerate(MOCK_MARKETPLACES, 1):
-        marketplaces_text += f"{i}. {marketplace['name']}\n   {marketplace['url']}\n\n"
-
     # Если сообщение содержит фото, удаляем его и отправляем новое текстовое
     if callback.message.photo:
         try:
@@ -155,15 +147,13 @@ async def handle_retail_choice(callback: CallbackQuery, state: FSMContext):
         except Exception:
             pass
         await callback.message.answer(
-            marketplaces_text,
+            RETAIL_TEXT,
             reply_markup=get_back_to_start_keyboard(),
-            disable_web_page_preview=False,
         )
     else:
         await callback.message.edit_text(
-            marketplaces_text,
+            RETAIL_TEXT,
             reply_markup=get_back_to_start_keyboard(),
-            disable_web_page_preview=False,
         )
     await callback.answer()
 
@@ -196,13 +186,8 @@ async def handle_quantity_yes(callback: CallbackQuery, state: FSMContext):
 
     # Формируем список менеджеров
     managers_text = OPT_MANAGERS_HEADER
-    for i, manager in enumerate(MOCK_MANAGERS, 1):
-        managers_text += f"{i}. {manager['name']}\n"
-        if manager.get("phone"):
-            managers_text += f"   📞 {manager['phone']}\n"
-        if manager.get("telegram"):
-            managers_text += f"   💬 {manager['telegram']}\n"
-        managers_text += "\n"
+    for i, manager in enumerate(OPT_MANAGERS, 1):
+        managers_text += f"{i}. {manager['telegram']}\n"
 
     # Если сообщение содержит фото, удаляем его и отправляем новое текстовое
     if callback.message.photo:
