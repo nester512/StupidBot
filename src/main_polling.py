@@ -12,7 +12,7 @@ async def start_polling() -> None:
     dp = get_dispatcher()
     await bot.set_my_commands(
         [
-            BotCommand(command='start', description='Запустить бота/Новое обсуждение'),
+            BotCommand(command='start', description='Запустить бота'),
         ]
     )
 
