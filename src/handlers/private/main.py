@@ -12,20 +12,23 @@ from src.handlers.private.texts import (
     BACK_TO_CHOICE,
     CHOOSE_SALE_TYPE,
     OPT_MANAGERS_HEADER,
-    OPT_QUANTITY_QUESTION,
-    OPT_SMALL_QUANTITY,
     START_GREETING,
 )
 
 # Контакты менеджеров для опта
 OPT_MANAGERS = [
-    {"telegram": "@Duxa_VLIQ"},
+    {"telegram": "@EL_VLIQ"},
+    {"telegram": "@kote_VLIQ"},
+    {"telegram": "@Egor_VLIQ"},
     {"telegram": "@ArtemVLiQ"},
-    {"telegram": "@elVLIQ"},
+    {"telegram": "@Duxa_VLIQ"},
 ]
 
 # Текст для розницы
-RETAIL_TEXT = """Привет! Уже совсем скоро наши ароматизаторы вернутся на OZON и Яндекс.Маркет. Следите за обновлениями в нашем Telegram-канале. А пока ищите VLIQ в шопах своего города."""
+RETAIL_TEXT = """🛒 Розница
+
+Сейчас купить можно здесь:
+https://www.wildberries.ru/seller/250099418"""
 
 
 def get_start_keyboard() -> InlineKeyboardMarkup:
@@ -36,20 +39,6 @@ def get_start_keyboard() -> InlineKeyboardMarkup:
                 InlineKeyboardButton(text="🛒 Розница", callback_data="sale_type:retail"),
                 InlineKeyboardButton(text="📦 ОПТ", callback_data="sale_type:opt"),
             ],
-        ]
-    )
-    return keyboard
-
-
-def get_quantity_keyboard() -> InlineKeyboardMarkup:
-    """Создает клавиатуру для подтверждения количества."""
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(text="✅ Да", callback_data="quantity:yes"),
-                InlineKeyboardButton(text="❌ Нет", callback_data="quantity:no"),
-            ],
-            [InlineKeyboardButton(text="🔙 " + BACK_TO_CHOICE, callback_data="back_to_start")],
         ]
     )
     return keyboard
@@ -161,30 +150,8 @@ async def handle_retail_choice(callback: CallbackQuery, state: FSMContext):
 @private_router.callback_query(F.data == "sale_type:opt")
 async def handle_opt_choice(callback: CallbackQuery, state: FSMContext):
     """Обработчик выбора ОПТ."""
-    # Если сообщение содержит фото, удаляем его и отправляем новое текстовое
-    if callback.message.photo:
-        try:
-            await callback.message.delete()
-        except Exception:
-            pass
-        await callback.message.answer(
-            OPT_QUANTITY_QUESTION,
-            reply_markup=get_quantity_keyboard(),
-        )
-    else:
-        await callback.message.edit_text(
-            OPT_QUANTITY_QUESTION,
-            reply_markup=get_quantity_keyboard(),
-        )
-    await callback.answer()
-
-
-@private_router.callback_query(F.data == "quantity:yes")
-async def handle_quantity_yes(callback: CallbackQuery, state: FSMContext):
-    """Обработчик подтверждения количества >= 5 шт."""
     await state.clear()
 
-    # Формируем список менеджеров
     managers_text = OPT_MANAGERS_HEADER
     for i, manager in enumerate(OPT_MANAGERS, 1):
         managers_text += f"{i}. {manager['telegram']}\n"
@@ -202,27 +169,6 @@ async def handle_quantity_yes(callback: CallbackQuery, state: FSMContext):
     else:
         await callback.message.edit_text(
             managers_text,
-            reply_markup=get_back_to_start_keyboard(),
-        )
-    await callback.answer()
-
-
-@private_router.callback_query(F.data == "quantity:no")
-async def handle_quantity_no(callback: CallbackQuery, state: FSMContext):
-    """Обработчик отказа при количестве < 5 шт."""
-    # Если сообщение содержит фото, удаляем его и отправляем новое текстовое
-    if callback.message.photo:
-        try:
-            await callback.message.delete()
-        except Exception:
-            pass
-        await callback.message.answer(
-            OPT_SMALL_QUANTITY,
-            reply_markup=get_back_to_start_keyboard(),
-        )
-    else:
-        await callback.message.edit_text(
-            OPT_SMALL_QUANTITY,
             reply_markup=get_back_to_start_keyboard(),
         )
     await callback.answer()
